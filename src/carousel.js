@@ -107,13 +107,13 @@ const Carousel = React.createClass({
     this.bindEvents();
 
     if (this.props.autoPlay) {
-      autoPlayTimer = setTimeout(this.autoPlayAdvance, this.props.autoPlaySpeed);
+      this.autoPlayStart();
     }
   },
 
   componentWillUnmount() {
     this.unbindEvents();
-    clearTimeout(autoPlayTimer);
+    clearInterval(autoPlayTimer);
   },
 
   render() {
@@ -347,16 +347,23 @@ const Carousel = React.createClass({
   },
   // Autoplay
 
+  autoPlayStart() {
+    autoPlayTimer = setInterval(this.autoPlayAdvance, this.props.autoPlaySpeed);
+  },
+
+  autoPlayClearInterval() {
+    clearInterval(autoPlayTimer);
+  },
+
   autoPlayAdvance() {
-    clearTimeout(autoPlayTimer);
     this.nextSlide();
-    autoPlayTimer = setTimeout(this.autoPlayAdvance, this.props.autoPlaySpeed);
   },
 
   // Action Methods
 
   goToSlide(index) {
     var self = this;
+    this.autoPlayClearInterval();
     if (index >= this.props.children.length || index < 0) {
       return;
     }
@@ -370,7 +377,7 @@ const Carousel = React.createClass({
 
   nextSlide() {
     var self = this;
-    clearTimeout(autoPlayTimer);
+    this.autoPlayClearInterval();
     if ((this.state.currentSlide + this.props.slidesToScroll) >= this.props.children.length) {
       return;
     }
@@ -384,7 +391,7 @@ const Carousel = React.createClass({
 
   previousSlide() {
     var self = this;
-    clearTimeout(autoPlayTimer);
+    this.autoPlayClearInterval();
     if ((this.state.currentSlide - this.props.slidesToScroll) < 0) {
       return;
     }
@@ -400,11 +407,16 @@ const Carousel = React.createClass({
 
   animateSlide(easing, duration, endValue) {
     var self = this;
+    console.log(autoPlayTimer);
     this.tweenState(this.props.vertical ? 'top' : 'left', {
       easing: easing || tweenState.easingTypes[this.props.easing],
       duration: duration || this.props.speed,
       endValue: endValue || this.getTargetLeft(),
-      onEnd: function() { autoPlayTimer = setTimeout(self.autoPlayAdvance, self.props.autoPlaySpeed); }
+      onEnd: function() {
+        if (self.props.autoPlay) {
+          autoPlayTimer = setTimeout(self.autoPlayAdvance, self.props.autoPlaySpeed);
+        }
+      }
     });
   },
 
