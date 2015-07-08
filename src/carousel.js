@@ -106,8 +106,8 @@ const Carousel = React.createClass({
     this.setDimensions();
     this.bindEvents();
 
-    if ( this.props.autoPlay ) {
-      autoPlayTimer = setTimeout( this.autoPlayAdvance, this.props.autoPlaySpeed );
+    if (this.props.autoPlay) {
+      autoPlayTimer = setTimeout(this.autoPlayAdvance, this.props.autoPlaySpeed);
     }
   },
 
@@ -350,7 +350,7 @@ const Carousel = React.createClass({
   autoPlayAdvance() {
     clearTimeout(autoPlayTimer);
     this.nextSlide();
-    autoPlayTimer = setTimeout( this.autoPlayAdvance, this.props.autoPlaySpeed );
+    autoPlayTimer = setTimeout(this.autoPlayAdvance, this.props.autoPlaySpeed);
   },
 
   // Action Methods
@@ -370,6 +370,7 @@ const Carousel = React.createClass({
 
   nextSlide() {
     var self = this;
+    clearTimeout(autoPlayTimer);
     if ((this.state.currentSlide + this.props.slidesToScroll) >= this.props.children.length) {
       return;
     }
@@ -383,6 +384,7 @@ const Carousel = React.createClass({
 
   previousSlide() {
     var self = this;
+    clearTimeout(autoPlayTimer);
     if ((this.state.currentSlide - this.props.slidesToScroll) < 0) {
       return;
     }
@@ -397,10 +399,12 @@ const Carousel = React.createClass({
   // Animation
 
   animateSlide(easing, duration, endValue) {
+    var self = this;
     this.tweenState(this.props.vertical ? 'top' : 'left', {
       easing: easing || tweenState.easingTypes[this.props.easing],
       duration: duration || this.props.speed,
-      endValue: endValue || this.getTargetLeft()
+      endValue: endValue || this.getTargetLeft(),
+      onEnd: function() { autoPlayTimer = setTimeout(self.autoPlayAdvance, self.props.autoPlaySpeed); }
     });
   },
 
@@ -475,7 +479,7 @@ const Carousel = React.createClass({
     frameHeight = slideHeight + ((this.props.cellSpacing / 2) * (this.props.slidesToShow - 1));
 
     this.setState({
-      frameWidth: this.props.vertical ? frameHeight : "100%",
+      frameWidth: this.props.vertical ? frameHeight : '100%',
       slideCount: this.props.children.length,
       slideWidth: slideWidth
     }, function() {
