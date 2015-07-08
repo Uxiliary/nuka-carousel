@@ -34,12 +34,16 @@ const removeEvent = function(elem, type, eventHandle) {
   }
 };
 
+var autoPlayTimer = null;
+
 const Carousel = React.createClass({
   displayName: 'Carousel',
 
   mixins: [tweenState.Mixin],
 
   propTypes: {
+    autoPlay: React.PropTypes.bool,
+    autoPlaySpeed: React.PropTypes.number,
     cellAlign: React.PropTypes.oneOf(['left', 'center', 'right']),
     cellSpacing: React.PropTypes.number,
     data: React.PropTypes.func,
@@ -63,6 +67,8 @@ const Carousel = React.createClass({
 
   getDefaultProps() {
     return {
+      autoPlay: false,
+      autoPlaySpeed: 3000,
       cellAlign: 'left',
       cellSpacing: 0,
       data: function() {},
@@ -99,10 +105,15 @@ const Carousel = React.createClass({
   componentDidMount() {
     this.setDimensions();
     this.bindEvents();
+
+    if ( this.props.autoPlay ) {
+      autoPlayTimer = setTimeout( this.autoPlayAdvance, this.props.autoPlaySpeed );
+    }
   },
 
   componentWillUnmount() {
     this.unbindEvents();
+    clearTimeout(autoPlayTimer);
   },
 
   render() {
@@ -333,6 +344,13 @@ const Carousel = React.createClass({
     }
     return 0;
 
+  },
+  // Autoplay
+
+  autoPlayAdvance() {
+    clearTimeout(autoPlayTimer);
+    this.nextSlide();
+    autoPlayTimer = setTimeout( this.autoPlayAdvance, this.props.autoPlaySpeed );
   },
 
   // Action Methods
