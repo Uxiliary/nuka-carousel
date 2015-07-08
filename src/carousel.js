@@ -407,14 +407,13 @@ const Carousel = React.createClass({
 
   animateSlide(easing, duration, endValue) {
     var self = this;
-    console.log(autoPlayTimer);
     this.tweenState(this.props.vertical ? 'top' : 'left', {
       easing: easing || tweenState.easingTypes[this.props.easing],
       duration: duration || this.props.speed,
       endValue: endValue || this.getTargetLeft(),
       onEnd: function() {
         if (self.props.autoPlay) {
-          autoPlayTimer = setTimeout(self.autoPlayAdvance, self.props.autoPlaySpeed);
+          self.autoPlayStart();
         }
       }
     });
