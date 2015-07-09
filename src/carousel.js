@@ -52,6 +52,7 @@ const Carousel = React.createClass({
     easing: React.PropTypes.string,
     edgeEasing: React.PropTypes.string,
     framePadding: React.PropTypes.string,
+    infinite: React.PropTypes.bool,
     initialSlideHeight: React.PropTypes.number,
     initialSlideWidth: React.PropTypes.number,
     slidesToShow: React.PropTypes.number,
@@ -77,6 +78,7 @@ const Carousel = React.createClass({
       easing: 'easeOutCirc',
       edgeEasing: 'easeOutElastic',
       framePadding: '0px',
+      infinite: false,
       slidesToShow: 1,
       slidesToScroll: 1,
       slideWidth: 1,
@@ -145,6 +147,7 @@ const Carousel = React.createClass({
                   slidesToScroll={self.props.slidesToScroll}
                   nextSlide={self.nextSlide}
                   previousSlide={self.previousSlide}
+                  infinite={self.props.infinite}
                   goToSlide={self.goToSlide} />
               </div>
             )
@@ -378,7 +381,7 @@ const Carousel = React.createClass({
   nextSlide() {
     var self = this;
     this.autoPlayClearInterval();
-    if ((this.state.currentSlide + this.props.slidesToScroll) >= this.props.children.length) {
+    if ((this.state.currentSlide + this.props.slidesToScroll) >= this.props.children.length && !this.props.infinite) {
       return;
     }
     this.setState({
@@ -392,7 +395,7 @@ const Carousel = React.createClass({
   previousSlide() {
     var self = this;
     this.autoPlayClearInterval();
-    if ((this.state.currentSlide - this.props.slidesToScroll) < 0) {
+    if ((this.state.currentSlide - this.props.slidesToScroll) < 0 && !this.props.infinite) {
       return;
     }
     this.setState({
@@ -414,6 +417,17 @@ const Carousel = React.createClass({
       onEnd: function() {
         if (self.props.autoPlay) {
           self.autoPlayStart();
+        }
+        if (self.props.infinite) {
+          if (self.state.currentSlide <= -1) {
+
+            self.setState({currentSlide: self.props.children.length - 1, left: ((self.props.children.length) * self.state.slideWidth) * -1})
+
+          } else if (self.state.currentSlide >= self.props.children.length) {
+
+            self.setState({currentSlide: 0, left: (self.state.slideWidth * -1)});
+          }
+
         }
       }
     });
@@ -445,7 +459,7 @@ const Carousel = React.createClass({
 
     offset -= touchOffset || 0;
 
-    return ((this.state.slideWidth * this.state.currentSlide) - offset) * -1;
+    return ((this.state.slideWidth * (this.props.infinite ? (this.state.currentSlide + 1) : this.state.currentSlide)) - offset) * -1;
   },
 
   // Bootstrapping
@@ -476,9 +490,21 @@ const Carousel = React.createClass({
 
   formatChildren(children) {
     var self = this;
-    return children.map(function(child, index) {
+    var c = children.slice();
+    var _c;
+    var startElement = children.slice(0, 1);
+    var endElement = children.slice(children.length-1);
+
+    if (this.props.infinite) {
+      c.splice(0, 0, endElement);
+      c.push(startElement);
+    }
+
+    _c = c.map(function(child, index) {
       return <li className="slider-slide" style={self.getSlideStyles()} key={index}>{child}</li>
     });
+
+    return _c;
   },
 
   setInitialDimensions() {
@@ -551,7 +577,7 @@ const Carousel = React.createClass({
   // Styles
 
   getListStyles() {
-    var listWidth = this.state.slideWidth * this.props.children.length;
+    var listWidth = this.state.slideWidth * (this.props.children.length + (this.props.infinite ? 2 : 0));
     var spacingOffset = this.props.cellSpacing * this.props.children.length;
     return {
       position: 'relative',

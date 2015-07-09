@@ -37,7 +37,24 @@ const App = React.createClass({
 module.exports = App;
 ```
 
+###Todo
+
+- Write test for `autoPlay`
+- Write test for `infinite`
+
+Light testing proved these cases working, could stand to be more thoroughly tested.
+
 ###Props
+
+####autoPlay
+`React.PropTypes.bool`
+
+*Default:* **false** - Enables autoplay, carousel will loop through slides automatically.
+
+####autoPlaySpeed
+`React.PropTypes.number`
+
+*Default:* **3000** - Sets the interval speed for autoplay.
 
 ####cellAlign
 `React.PropTypes.oneOf(['left', 'center', 'right'])`
@@ -104,6 +121,11 @@ Animation easing function. See valid easings here: [https://github.com/chenglou/
 `React.PropTypes.string`
 
 Animation easing function when swipe exceeds edge. See valid easings here: [https://github.com/chenglou/tween-functions](https://github.com/chenglou/tween-functions)
+
+####infinite
+`React.PropTypes.bool`
+
+*Default:* **false** - Allows for infinite looping of slides. Passes `infinite` prop into decorators to allow you to enable/disable states on buttons at your discretion.
 
 ####slidesToShow
 `React.PropTypes.number`
