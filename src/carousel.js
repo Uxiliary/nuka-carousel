@@ -115,7 +115,7 @@ const Carousel = React.createClass({
 
   componentWillUnmount() {
     this.unbindEvents();
-    clearInterval(autoPlayTimer);
+    this.autoPlayClearInterval();
   },
 
   render() {
